@@ -24,8 +24,10 @@
 ---
 
 flutter link: https://github.com/sarathi-sai7/paymigo-project
+
 Geotruth package: https://github.com/sarathi-sai7/paymigo-project
 
+PPT link : https://drive.google.com/file/d/14tYRZpYtrOamAYRQIG_syYYn7MNUmpM1/view?usp=drive_link
 ## 1. Why Food Delivery — Persona Justification
 
 We chose **Food Delivery Partners (Zomato / Swiggy)** over E-commerce or Q-Commerce for three concrete reasons:
