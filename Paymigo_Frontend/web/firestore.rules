@@ -1,0 +1,199 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: workers
+    // Fields:
+    //   - name: string (required)
+    //   - phone: string (required)
+    //   - city: string (required)
+    //   - zone: string (required)
+    //   - plan: string (required)
+    //   - isMonsoon: bool
+    //   - weeklyPremium: number
+    //   - createdAt: timestamp
+    //   - status: string
+    //
+    // Collection: wallets
+    // Fields:
+    //   - workerId: string (required)
+    //   - loyaltyPoolBalance: number
+    //   - availableBalance: number
+    //   - premiumReserve: number
+    //   - totalEarned: number
+    //   - totalWithdrawn: number
+    //
+    // Collection: transactions
+    // Fields:
+    //   - workerId: string (required)
+    //   - type: string (enum: CREDIT, DEBIT)
+    //   - amount: number (required)
+    //   - description: string
+    //   - balanceAfter: number (required)
+    //   - createdAt: timestamp
+    //
+    // Collection: claims
+    // Fields:
+    //   - workerId: string (required)
+    //   - workerName: string
+    //   - type: string (required)
+    //   - description: string (required)
+    //   - statement: string (required)
+    //   - amount: number (required)
+    //   - status: string (enum: PENDING, APPROVED, REJECTED)
+    //   - adminComment: string
+    //   - createdAt: timestamp
+    //
+    // Collection: notifications
+    // Fields:
+    //   - workerId: string (required)
+    //   - title: string (required)
+    //   - message: string (required)
+    //   - type: string (enum: INFO, SUCCESS, WARNING, DANGER)
+    //   - read: bool (required)
+    //   - createdAt: timestamp
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && resource != null && request.auth.uid == resource.data.workerId;
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidString(field, minLen, maxLen) {
+      return request.resource.data[field] is string &&
+             request.resource.data[field].size() >= minLen &&
+             request.resource.data[field].size() <= maxLen;
+    }
+
+    function isValidNumber(field, minVal) {
+      return request.resource.data[field] is number &&
+             request.resource.data[field] >= minVal;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (
+          (request.auth.token.email == "vennila498@gmail.com" || request.auth.token.email == "admin@gmail.com") ||
+          (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+        );
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+    function isValidWorker(data) {
+      return data.keys().hasAll(['name', 'phone', 'city', 'zone', 'plan']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.phone is string &&
+             data.city is string &&
+             data.zone is string &&
+             data.plan is string;
+    }
+
+    function isValidWallet(data) {
+      return data.keys().hasAll(['workerId', 'availableBalance', 'loyaltyPoolBalance']) &&
+             data.workerId is string &&
+             data.availableBalance is number &&
+             data.loyaltyPoolBalance is number;
+    }
+
+    function isValidTransaction(data) {
+      return data.keys().hasAll(['workerId', 'type', 'amount', 'balanceAfter']) &&
+             data.workerId is string &&
+             data.type in ['CREDIT', 'DEBIT'] &&
+             data.amount is number &&
+             data.balanceAfter is number;
+    }
+
+    function isValidClaim(data) {
+      // MANDATORY: Only income-related claims are permitted
+      return data.keys().hasAll(['workerId', 'type', 'description', 'statement', 'amount', 'status']) &&
+             data.workerId is string &&
+             data.type == 'Income Protection' &&
+             data.description is string && data.description.size() < 1000 &&
+             data.statement is string && data.statement.size() < 5000 &&
+             data.status in ['PENDING', 'APPROVED', 'REJECTED'] &&
+             data.amount is number && data.amount > 0;
+    }
+
+    function isValidNotification(data) {
+      return data.keys().hasAll(['workerId', 'title', 'message', 'type', 'read']) &&
+             data.workerId is string &&
+             data.title is string &&
+             data.message is string &&
+             data.type in ['INFO', 'SUCCESS', 'WARNING', 'DANGER'] &&
+             data.read is bool;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role']) &&
+             data.uid is string &&
+             data.email is string &&
+             data.role in ['admin', 'client'];
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+    // Connection test collection
+    match /test/{docId} {
+      allow read, write: if true;
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow create: if isAuthenticated() && request.auth.uid == userId && isValidUser(request.resource.data) && request.resource.data.role == 'client';
+      allow update: if isAuthenticated() && (isAdmin() || (request.auth.uid == userId && request.resource.data.role == resource.data.role));
+    }
+
+    match /workers/{workerId} {
+      allow read: if isAuthenticated() && (request.auth.uid == workerId || isAdmin());
+      allow create, update: if isAuthenticated() && request.auth.uid == workerId && isValidWorker(request.resource.data);
+    }
+
+    match /wallets/{workerId} {
+      allow read: if isAuthenticated() && (request.auth.uid == workerId || isAdmin());
+      allow create, update: if isAuthenticated() && request.auth.uid == workerId && isValidWallet(request.resource.data);
+    }
+
+    match /claims/{claimId} {
+      allow read: if isAuthenticated() && (resource.data.workerId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.workerId == request.auth.uid && isValidClaim(request.resource.data);
+      allow update: if isAdmin();
+    }
+
+    match /transactions/{txnId} {
+      allow read: if isAuthenticated() && (resource.data.workerId == request.auth.uid || isAdmin());
+      allow create: if isAdmin(); // Transactions usually created by system/admin
+    }
+
+    match /notifications/{notifId} {
+      allow read: if isAuthenticated() && (resource.data.workerId == request.auth.uid || isAdmin());
+      allow create: if isAdmin();
+      allow update: if isAuthenticated() && resource.data.workerId == request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+    }
+  }
+}

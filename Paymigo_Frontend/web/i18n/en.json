@@ -1,0 +1,14 @@
+{
+  "common": {
+    "appName": "Paymigo",
+    "getProtected": "Get Protected",
+    "dashboard": "Dashboard",
+    "howItWorks": "How it Works",
+    "plans": "Plans",
+    "aiModels": "AI Models"
+  },
+  "landing": {
+    "heroTitle": "When the sky shuts you down, Paymigo pays you.",
+    "heroSubtitle": "AI-powered income protection for 5 million Zomato & Swiggy partners."
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Remix: Paymigo",
+  "description": "India\u0027s first AI-powered parametric income insurance platform for food delivery partners.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}

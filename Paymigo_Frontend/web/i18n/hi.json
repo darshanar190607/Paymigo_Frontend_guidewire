@@ -1,0 +1,14 @@
+{
+  "common": {
+    "appName": "Paymigo",
+    "getProtected": "सुरक्षा प्राप्त करें",
+    "dashboard": "डैशबोर्ड",
+    "howItWorks": "यह कैसे काम करता है",
+    "plans": "योजनाएं",
+    "aiModels": "AI मॉडल"
+  },
+  "landing": {
+    "heroTitle": "जब आसमान आपको रोकता है, Paymigo आपको भुगतान करता है।",
+    "heroSubtitle": "50 लाख जोमैटो और स्विगी पार्टनर्स के लिए AI-आधारित आय सुरक्षा।"
+  }
+}

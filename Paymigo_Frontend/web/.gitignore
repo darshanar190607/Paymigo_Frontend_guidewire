@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+build/
+coverage/
+
+# Environment Variables (Keep real keys private)
+.env
+.env.local
+.env.*.local
+! .env.example
+
+# Sensitive Firebase Config
+firebase-applet-config.json
+
+# Logs & System Files
+*.log
+.DS_Store
+Thumbs.db
