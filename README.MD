@@ -1,104 +1,196 @@
+# PayMigo — AI-Powered Parametric Income Insurance
+**Guidewire DEVTrails 2026 | Team HackDragonz | Persona: Food Delivery Partners**
+
 <div align="center">
   <img src="https://img.icons8.com/color/120/000000/shield.png" alt="PayMigo Logo" />
-  <h1 align="center">PayMigo (GigKavach GeoTruth™)</h1>
-  <p align="center">
-    <strong>Parametric Micro-Insurance for the Gig Economy, Powered by AI Decisioning.</strong>
-    <br />
-    <br />
-    <a href="#business-model--viability">Business Model</a> •
-    <a href="#why-this-persona">The Persona</a> •
-    <a href="#features-top-to-bottom">Full Features</a> •
-    <a href="#system-architecture">Architecture</a>
+  <p>
+    <strong>"When the sky shuts you down, PayMigo pays you. Automatically. In under 90 seconds."</strong>
   </p>
+  <br />
+  <a href="#1-why-food-delivery">Persona</a> •
+  <a href="#4-parametric-triggers">Triggers</a> •
+  <a href="#5-geotruth-fraud-defense">GeoTruth™</a> •
+  <a href="#6-loyalty--continuity">Loyalty</a> •
+  <a href="#7-tech-stack">Stack</a> •
+  <a href="#11-business-viability">GTM Strategy</a>
 </div>
 
 ---
 
-> *"An insurance platform built not just to disburse funds, but to establish absolute ground truth in a chaotic gig economy."*
+## 1. Why Food Delivery — Persona Justification
+We chose **Food Delivery Partners (Zomato / Swiggy)** for three concrete reasons:
 
-## 💡 The Problem & Why This Persona?
-The gig economy backbone (Swiggy, Zomato, Zepto, Uber) employs millions of daily-wage workers. When extreme climate events (flash floods, monsoons) or civil disruptions (curfews, strikes) strike, their daily income drops to **zero**. 
-Traditional insurance is broken for them: it's paper-based, slow, and expensive.
-**Why this persona?** Gig workers are highly vulnerable to volatile external events but represent a massive, untapped Total Addressable Market (TAM) for micro-insurance. They need instantaneous, guaranteed safety nets, not high-latency corporate claims adjusting.
+1.  **Scale**: India has over **5.2 million** active food delivery partners, representing >75% of the total gig delivery segment.
+2.  **Disruption Frequency**: Unlike E-commerce workers who can reschedule, a food delivery worker caught in a 3-hour rainstorm loses that income **permanently**.
+3.  **Payment Cycle**: Zomato/Swiggy pay partners weekly every Monday, which aligns perfectly with PayMigo's **Weekly Premium Model**.
 
-## 🚀 The PayMigo Solution (Evaluator's Perspective)
-**PayMigo** eliminates the claims department entirely. We rely on **Parametric Triggers** (Live Weather APIs + Curfew NLP) to execute smart payouts instantaneously. 
-However, instantaneous payouts attract immense fraud. To secure the business model, we built **GeoTruth™**—a 7-layer Machine Learning intelligence suite that blocks GPS spoofing, behavioral fraud, and sybil networks in real-time.
-
----
-
-## 📈 Business Model & Viability
-This isn't just a tech demo; it is a viable commercial entity designed to achieve a **Loss Ratio < 65%**.
-
-| Strategy | Commercial Impact |
-| :--- | :--- |
-| **Parametric Triggers** | **Near-Zero OPEX:** Eliminates manual underwriters and claims adjusters by utilizing data from OpenWeather and News NLP. |
-| **Loyalty Pool Tracker** | **High Retention & Lower CAC:** Workers contribute to a community "No-Claim" pool. If they don't claim, they get cash back. This forces crowd-sourced honesty and massively lowers platform churn. |
-| **Dynamic Premium Pricing** | **Risk-Adjusted Margins:** Uses LSTM forecasting to dynamically adjust weekly premiums based on upcoming weather and civic risks. |
-
-### 🛡️ Evaluator Deep-Dive Insights (Architectural Resilience)
-To prove production viability, we addressed the three hardest challenges in parametric systems:
-1. **The Over-Correlation Trap:** Climate events trigger payouts for everyone simultaneously. To achieve absolute solvency, our business model explicitly integrates dynamic **Reinsurance Treaties** and capital buffer logic to survive extreme black-swan conditions.
-2. **Budget Hardware Imputation:** 70% of Indian gig workers lack barometric sensors or precise GPS chips. Our ML pipeline mathematically imputes missing hardware fields and heavily weights behavioral anomaly signals (e.g., erratic delivery velocities) dynamically.  
-3. **Database Graceful Degradation:** To prevent race conditions during massive spatial trigger events (e.g., an entire city flooding), we deployed hardened circuit breakers and deterministic JSON response fallbacks. 
+### 📉 The Problem: A Typical Disruption Week
+| Day | Condition | Orders | Earnings | Status |
+|---|---|---|---|---|
+| Monday | Clear | 22 | ₹1,100 | ✅ |
+| Wednesday | **Heavy Rain — IMD Red Alert** | 3 | ₹180 | ❌ **₹800 Loss** |
+| Thursday | **AQI > 350 — Severe** | 0 | ₹0 | ❌ **₹1100 Loss** |
+| Friday | **City Curfew — Section 144** | 0 | ₹0 | ❌ **₹1100 Loss** |
+| **Total** | | | **₹4,730** | **~30% Loss** |
 
 ---
 
-## 💎 Features Top-to-Bottom
-Our UI/UX is built to feel premium, robust, and mathematically grounded. **No one else builds gig-work UI with this level of dashboard sophistication.**
+## 2. Our Strategy Pillars
 
-### 1. The Worker App (Frontend)
-- **Live Risk Dashboard:** Shows spatial risk, incoming severe weather, and real-time civic disruption alerts (Curfews/Strikes).
-- **Loyalty Pool Tracker:** Gamified ring showing how much "No-Claim Bonus" they are owed at the end of the month.
-- **Instant Wallet & Withdrawal:** Razorpay integrated one-click payout processing.
-- **Dynamic Policy Checkout:** Real-time ML pricing for purchasing income protection weekly.
+### 💰 Three Weekly Plans — With Surge Pricing
+Existing subscribers are **Locked at their rate**. Surge pricing only applies to new sign-ups during high-risk periods.
 
-### 2. The Command Center (Admin / Insurer Dashboard)
-- **Risk Forecasting Heatmaps:** 7-day predicted risk forecasting map across multiple delivery zones.
-- **Business Metrics:** Live tracker of Loss Ratios, Market Penetration, Active Policies, and Premiums.
-- **Automated Fraud Queue:** Investigates blocked claims with detailed explainability (e.g., *Is the GPS spoofed? Is it a device farm?*).
+| Plan | Normal Week | Disruption Week | Base Payout/Event |
+|---|---|---|---|
+| 🟤 **Basic Shield** | ₹69/week | ₹89/week | ₹600 |
+| 🔵 **Standard Shield** | ₹119/week | ₹149/week | ₹1,000 |
+| 💎 **Premium Shield** | ₹179/week | ₹225/week | ₹1,600 |
 
-### 3. The GeoTruth™ ML Layer (The Secret Sauce)
-- **NLP Curfew/Strike Detection**: Live scraping of local news headlines via BERT embeddings to detect localized socio-political unrest impacting gig work.
-- **Fraud Detection (XGBoost + Isolation Forest)**: Handles non-linear behavioral correlations while unsupervised Isolation Forests catch unseen zero-day fraud tactics without needing labeled datasets.
-- **GPS Spoofing (Random Forest + Logistic Meta-Learner)**: Extremely robust offline/online stacking model to block location fabrication apps.
+### 🔥 Progressive Loyalty Multiplier (Streak Engine)
+Stay enrolled longer to unlock massive payout multipliers.
+| Streak | Weeks Paid | Multiplier | Payout Example (₹700 loss) |
+|---|---|---|---|
+| Starter | Week 1–3 | 1.0x | ₹700 |
+| Silver | Week 8–11 | 1.6x | ₹1,120 |
+| Platinum | Week 16–19 | 3.0x | ₹2,100 |
+| **Diamond** | **Week 20+** | **4.0x** | **₹2,800** |
 
 ---
 
-## 🏗️ Folder Structure & Architecture
-The repository has been restructured to cleanly separate the microservices, showcasing enterprise-level separation of concerns.
-
-```text
-PayMigo_Final/
-├── Paymigo_Frontend/
-│   └── web/                   # Vite + React + Tailwind + Framer Motion (World-class aesthetic)
-│       ├── src/components/    # Modular UI components (Dashboards, Metrics, Checkouts)
-│       ├── src/pages/         # Route views (Analytics, FraudReview, Onboard)
-│       └── package.json       # Configured for instant Vercel Deployment
-├── backend/                   # Node.js + Express (The Orchestrator)
-│   ├── routes/                # API Gateways (Triggers, Payouts, Wallet, AI Hooks)
-│   ├── prisma/                # PostgreSQL Schema (Worker, Claim, Zone, FraudDecision)
-│   └── server.js              # Entrypoint (with MLOps metrics injection & Keep-Alive ping)
-├── ml-services/               # Python + FastAPI (GeoTruth ML Intelligence)
-│   └── ML-Service/
-│       ├── Fraud_detection/   # XGBoost / Isolation Forest Pipelines
-│       ├── curfew_nlp/        # HuggingFace NLP inference
-│       └── main.py            # Uvicorn entrypoint for the AI microservice
-└── README.md                  # You are here!
+## 3. Data & Trigger Flow Architecture
+```mermaid
+flowchart TD
+    A[Worker Subscribes] --> B[Trigger Engine]
+    B --> C{API Polling 10-15 Min}
+    C --> D[OpenWeather API]
+    C --> E[CPCB / SAFAR AQI API]
+    C --> F[IMD Weather Alerts]
+    C --> G[NewsAPI - Curfew NLP]
+    
+    D & E & F & G --> I{Threshold Breached?}
+    I -- Yes --> J[Random Forest Classifier]
+    J -- YES --> M[GeoTruth™ Fraud Engine]
+    
+    M --> N[Barometric Coherence]
+    M --> O[Inertial Motion Analysis]
+    M --> P[Network Topology Check]
+    
+    P -- Legitimate --> R[Payout Calculation]
+    R --> S[Razorpay UPI Transfer]
+    S --> T[Instant SMS Notification]
 ```
 
-> **View our visual Mermaid Architecture flow in `ARCH_DIAGRAM.md`**
+---
+
+## 4. Parametric Triggers — Threshold Justification
+| Trigger | Threshold | Official Basis | Max Daily Payout |
+|---|---|---|---|
+| **Heavy Rain** | > 50mm/hr | IMD "Heavy Rain" Red Alert criteria. | ₹480 |
+| **Severe AQI** | > 300 | CPCB "Severe" category (Outdoor activity restricted). | ₹480 |
+| **Heat Wave** | > 45°C | IMD Heat Wave declaration. | ₹360 |
+| **Curfew** | Section 144 | Commercial assembly legally prohibited. | ₹540 |
+| **Outage** | 90+ min Down | Platform SLA benchmark. | ₹300 |
 
 ---
 
-## 🛠️ Evaluator / Hackathon "Try It Out"
-This app is fully optimized for continuous, zero-latency cloud evaluation.
+## 5. GeoTruth™ Fraud Defense (The Secret Sauce)
+Parametric insurance is vulnerable to GPS spoofing. **GeoTruth™** uses 7-layer verification to secure the pool.
 
-1. **Keep-Alive Architecture:** The backend features a background heartbeat ping loop, completely stopping PaaS sleeping behaviors.
-2. **Error Boundaries:** If the Python ML microservices face downtime, the Node backend will automatically trip a circuit breaker and defer to a hardcoded rules engine. **The demo will never crash.**
-3. **MLOps Injection:** Our API simulates and attaches strict Latency (`_ml_latency_ms`) and Confidence scores (`_ml_confidence`) in every single response to showcase end-to-end telemetry.
+1.  **Barometric Coherence**: Correlates phone sensor data with hyper-local IMD pressure drops (Cannot be spoofed).
+2.  **Acoustic Fingerprinting**: Extracts 3-second ambient vectors to verify rain/wind noise signatures.
+3.  **Network Topology**: Cross-validates cell tower IDs and residential WiFi SSIDs against GPS.
+4.  **Inertial Motion**: Distinguishes "delivery motion" from "desk-sitting" spoofers using Accelerometer data.
+5.  **Social Graph**: Flags bursts of claims triggered by "Tele-Coordination" (Fraud rings).
+6.  **Isolation Forest**: Unsupervised ML to catch "Zero-Day" fraud tactics.
+7.  **Community Photo Validation**: Encrypted, geotagged photos as an manual fallback.
+
+---
+
+## 6. Progressive Loyalty & Continuity
+We solve the "Why pay when nothing happens?" question with a **Loss Ratio Protection Model**:
+*   **Month 1**: 40% income replacement.
+*   **Month 5+**: 80% income replacement.
+*   **The Continuity Break Rule**: If you miss a week, your tier resets. This prevents "adverse selection" (workers only paying in July/August).
+
+---
+
+## 7. Tech Stack & Project Structure
+
+### Folder Structure
+```text
+PayMigo_Final/
+├── Paymigo_Frontend/web/      # Next.js 14 + Tailwind + Framer Motion
+├── backend/                  # Node.js + Express + Prisma (Orchestrator)
+└── ml-services/ML-Service/   # Python + FastAPI (GeoTruth™ Intelligence)
+```
+
+### AI Integration
+*   **Pricing**: XGBoost (Premium calculation every Monday morning).
+*   **NLP**: BERT-encoded Classifiers (Detecting localized curfews).
+*   **Forecasting**: LSTM Neural Network (7-day risk heatmaps for insurers).
+*   **Anomaly**: Isolation Forest (Real-time fraud scoring).
+
+---
+
+## 8. API Resilience & Fallback
+**Tier 1 — Cache Replay**: Serving 15-minute buffered data if APIs fail.
+**Tier 2 — 2-of-3 Rule**: Requiring confirmation from at least 2 weather sources (e.g., IMD + OpenWeather).
+**Tier 3 — Crowdsourced Verification**: If all APIs fail, we poll active workers in the zone. If 7/10 submit matching photos, the trigger fires.
+
+---
+
+## 9. Database Schema (Prisma)
+```prisma
+model Worker {
+  id              String   @id @default(cuid())
+  phone           String   @unique
+  cityZone        String
+  riskTier        Int      @default(1)
+  loyaltyMonthTier Int     @default(1) // 1-5 maps to 40%-80%
+  totalPremiumPaid Float   @default(0)
+  trustedStatus   Boolean  @default(false)
+  policies        Policy[]
+  claims          Claim[]
+}
+
+model Claim {
+  id             String   @id @default(cuid())
+  triggerType    String   // "rainfall" | "aqi" | "curfew"
+  totalPayout    Float
+  fraudScore     Float
+  status         String   // "auto_approved" | "manual_review"
+}
+```
+
+---
+
+## 10. GTM & Business Viability
+*   **Revenue Model**: 17% technology fee per premium through our insurer partner (ACKO/Digit).
+*   **CAC (Customer Acquisition Cost)**: Estimated at **₹140/worker** via:
+    *   **Area Team Leaders (ATLs)**: Referral commissions for group enrollments.
+    *   **Hub Service Centres**: QR code posters at local delivery battery-swap stations.
+    *   **WhatsApp Communities**: Peer-to-peer viral growth loops.
+
+---
+
+## 11. Running Locally
+1.  **Start Services**: `docker-compose up -d` (PostgreSQL + Redis).
+2.  **ML Service**: `cd ml-services/ML-Service && uvicorn app.main:app`.
+3.  **Backend**: `cd backend && node server.js`.
+4.  **Frontend**: `cd Paymigo_Frontend/web && npm run dev`.
+
+### Train Models:
+```bash
+python app/models/zone_clusterer/train.py
+python app/models/premium_engine/train.py
+python app/models/fraud_detector/train.py
+```
+
+---
 
 <div align="center">
   <br />
   <strong>Built for impact. Engineered for survival. 🚀</strong>
+  <br />
+  <em>Guidewire DEVTrails 2026 | Team HackDragonz</em>
 </div>
