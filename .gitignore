@@ -57,8 +57,8 @@ dist/
 *.whl
 
 # ─── ML Model files (large binaries) ───────────────────────────
-*.h5
-*.pkl
+# *.h5
+# *.pkl
 *.joblib
 *.keras
 *.ckpt
