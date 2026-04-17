@@ -1,0 +1,29 @@
+{
+  "model": "LSTM",
+  "architecture": "LSTM(64)->Dropout->LSTM(32)->Dropout->Dense(16)->Dense(1,sigmoid)",
+  "loss": "focal_loss(gamma=2.0, alpha=0.85)",
+  "features": [
+    "rain_mm",
+    "temp_c",
+    "humidity_pct",
+    "wind_speed_kmph",
+    "pressure_hpa",
+    "storm_alert_flag",
+    "flood_alert_flag",
+    "heatwave_flag",
+    "high_wind_flag",
+    "rain_3day_avg",
+    "rain_7day_avg"
+  ],
+  "n_features": 11,
+  "seq_in": 14,
+  "seq_out": 7,
+  "target": "disruption_happened",
+  "selected_threshold": 0.6,
+  "precision": 0.1333,
+  "recall": 0.1333,
+  "f1_score": 0.1333,
+  "roc_auc": 0.9397,
+  "epochs_trained": 21,
+  "trained": true
+}

@@ -1,0 +1,39 @@
+# PayMigo Knowledge Base
+
+## 1. What is PayMigo?
+PayMigo is a financial co-pilot and income protection platform designed specifically for gig workers (delivery drivers, rideshare drivers, etc.). It helps workers stabilize their income by providing payouts during low-demand periods or unexpected disruptions.
+
+## 2. Subscription Plans
+- **PayMigo Lite**: $5/month. Payout cap: $100/month. Includes basic income tracking.
+- **PayMigo Pro**: $15/month. Payout cap: $500/month. Includes demand forecasting and basic GeoTruth verification.
+- **PayMigo Elite**: $25/month. Payout cap: $1,500/month. Includes full GeoTruth protection, priority support, and premium analytics.
+
+## 3. Trigger Rules
+Payouts are triggered based on:
+- **Low Demand**: When regional gig demand falls 30% below the 3-month average.
+- **Extreme Weather**: When weather conditions (heavy rain, snow, extreme heat) prevent safe working conditions.
+- **Curfew/Lockdown**: Official government-mandated curfews in the worker's operational area.
+
+## 4. Claim Workflow
+1. **Initiation**: User opens the Migo assistant or "Claims" tab and selects "New Claim".
+2. **Verification**: Migo checks the current triggers (weather/demand) and validates the user's location via GeoTruth.
+3. **Approval**: If triggers are active and location is verified, the claim is approved instantly.
+4. **Payout**: Funds are disbursed to the linked wallet within 24 hours.
+
+## 5. GeoTruth Explanation
+GeoTruth is PayMigo's proprietary location verification system. It cross-references GPS data with cell tower triangulation and known Wi-Fi hotspots to ensure a user is actually in the zone they claim to be. This prevents "spoofing" and ensures payouts only go to workers affected by local conditions.
+
+## 6. Fraud and Spoofing
+PayMigo has a zero-tolerance policy for GPS spoofing. If GeoTruth detects a mismatch between GPS and network location, the account is flagged for review. Repeated attempts result in a permanent ban.
+
+## 7. Loyalty Rules
+- **Gold Member**: 6 months of continuous subscription. 10% bonus on all claims.
+- **Platinum Member**: 12 months+ of subscription. 20% bonus on all claims and 1 free "emergency payout" per year regardless of triggers.
+
+## 8. Support and Escalation
+- **Migo**: Handles basic questions and status checks.
+- **Level 1 Support**: Human agents for claim disputes. Escalated if Migo cannot resolve the intent for 3 consecutive turns.
+- **Level 2 Support**: Technical issues or fraud appeals.
+
+## 9. Tone of Voice
+Migo is helpful, professional, and empathetic. It uses clear, concise language and avoids overly technical jargon unless explaining GeoTruth. Migo should always try to be encouraging to gig workers.

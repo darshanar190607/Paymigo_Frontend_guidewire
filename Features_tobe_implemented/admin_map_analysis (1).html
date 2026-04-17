@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayMigo | Admin Map Analysis</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --color-background: #FFFFFF;
+            --color-surface: #F9FAFB;
+            --color-accent: #FF5500;
+            --color-accent-secondary: #FF8800;
+            --color-success: #10B981;
+            --color-warning: #F59E0B;
+            --color-danger: #EF4444;
+            --color-text-primary: #0A0E1A;
+            --color-text-secondary: #4B5563;
+            --color-border: #E5E7EB;
+            --font-display: "Space Grotesk", sans-serif;
+            --font-body: "Inter", sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-surface);
+            color: var(--color-text-primary);
+            overflow: hidden; /* Full screen map feel */
+            height: 100vh;
+            width: 100vw;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--font-display);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        /* Layout */
+        .app-container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            border-right: 1px solid var(--color-border);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            z-index: 1000;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.02);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-secondary) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 85, 0, 0.2);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Controls */
+        .control-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .control-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 800;
+            color: var(--color-text-secondary);
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        select {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            background-color: var(--color-surface);
+            font-family: var(--font-body);
+            font-weight: 600;
+            appearance: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 4px rgba(255, 85, 0, 0.1);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(229, 231, 235, 0.5);
+            padding: 1.25rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            transition: transform 0.2s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+        }
+
+        /* Map Container */
+        .map-wrapper {
+            position: relative;
+            height: 100%;
+            width: 100%;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+            background-color: #f1f1f1;
+        }
+
+        /* Overlay Info */
+        .floating-info {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            width: 300px;
+        }
+
+        /* Custom Markers */
+        .user-marker {
+            background: none;
+            border: none;
+        }
+
+        .vehicle-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border: 2px solid var(--color-accent);
+            color: var(--color-accent);
+            transition: all 0.3s ease;
+        }
+
+        .vehicle-icon:hover {
+            transform: scale(1.1);
+            background: var(--color-accent);
+            color: white;
+        }
+
+        /* Popup Styles */
+        .leaflet-popup-content-wrapper {
+            border-radius: 16px;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .leaflet-popup-content {
+            margin: 0;
+            width: 240px !important;
+        }
+
+        .popup-header {
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-secondary) 100%);
+            color: white;
+        }
+
+        .popup-body {
+            padding: 1rem;
+        }
+
+        .popup-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .popup-subtitle {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        .popup-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .popup-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .popup-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+        }
+
+        .popup-value {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+        }
+
+        /* Legend */
+        .legend {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .circle {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none; /* Hide sidebar on mobile for simplicity */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i data-lucide="shield-check"></i>
+                </div>
+                <h1 class="logo-text">PayMigo</h1>
+            </div>
+
+            <div class="control-section">
+                <label class="control-label">View Selection</label>
+                <div class="select-wrapper">
+                    <select id="region-filter">
+                        <option value="chennai">Chennai Region</option>
+                        <option value="bangalore">Bangalore Region</option>
+                        <option value="mumbai">Mumbai Region</option>
+                        <option value="delhi">Delhi Region</option>
+                        <option value="hyderabad">Hyderabad Region</option>
+                        <option value="pune">Pune Region</option>
+                        <option value="ahmedabad">Ahmedabad Region</option>
+                        <option value="kolkata">Kolkata Region</option>
+                        <option value="jaipur">Jaipur Region</option>
+                        <option value="lucknow">Lucknow Region</option>
+                        <option value="coimbatore">Coimbatore Region</option>
+                        <option value="chandigarh">Chandigarh Region</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <label class="control-label">Live Metrics</label>
+                <div class="stats-grid">
+                    <div class="glass-card">
+                        <p class="stat-value" id="active-partners">1,284</p>
+                        <p class="stat-label">Active Partners</p>
+                    </div>
+                    <div class="glass-card">
+                        <p class="stat-value" id="total-withdrawn">₹ 4.2L</p>
+                        <p class="stat-label">Today's Withdrawals</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <label class="control-label">Security Alerts</label>
+                <div class="glass-card" style="border-left: 4px solid var(--color-danger);">
+                    <p style="font-size: 0.85rem; font-weight: 600; color: var(--color-danger);">High Disruption Zone Detected</p>
+                    <p style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 0.25rem;">T. Nagar, Chennai - Protest active</p>
+                </div>
+            </div>
+
+            <p style="margin-top: auto; font-size: 0.7rem; color: var(--color-text-secondary); text-align: center;">
+                &copy; 2024 PayMigo Admin • Real-time Sync
+            </p>
+        </aside>
+
+        <!-- Map Main Area -->
+        <main class="map-wrapper">
+            <div id="map"></div>
+
+            <!-- Legend Overlay -->
+            <div class="legend">
+                <label class="control-label" style="margin-bottom: 0.25rem;">Disruption Levels</label>
+                <div class="legend-item">
+                    <div class="circle" style="background: var(--color-danger);"></div>
+                    <span>High (Action Required)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="circle" style="background: var(--color-warning);"></div>
+                    <span>Moderate (Monitoring)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="circle" style="background: var(--color-success);"></div>
+                    <span>Low (Operational)</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <script>
+        // Start Lucide Icons
+        lucide.createIcons();
+
+        // Constants
+        const THEME_COLORS = {
+            accent: '#FF5500',
+            success: '#10B981',
+            warning: '#F59E0B',
+            danger: '#EF4444'
+        };
+
+        // Map Initialize
+        const map = L.map('map', {
+            zoomControl: false
+        }).setView([13.0827, 80.2707], 13); // Default: Chennai
+
+        // Add custom zoom control position
+        L.control.zoom({ position: 'bottomleft' }).addTo(map);
+
+        // Tile Layer (CartoDB Positron - clean and modern)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO'
+        }).addTo(map);
+
+        // --- MOCK DATA ---
+        
+        const regions = {
+            chennai: [13.0827, 80.2707],
+            bangalore: [12.9716, 77.5946],
+            mumbai: [19.0760, 72.8777],
+            delhi: [28.6139, 77.2090],
+            hyderabad: [17.3850, 78.4867],
+            pune: [18.5204, 73.8567],
+            ahmedabad: [23.0225, 72.5714],
+            kolkata: [22.5726, 88.3639],
+            jaipur: [26.9124, 75.7873],
+            lucknow: [26.8467, 80.9462],
+            chandigarh: [30.7333, 76.7794],
+            coimbatore: [11.0168, 76.9558]
+        };
+
+        const zones = [
+            // Chennai
+            { center: [13.0418, 80.2341], radius: 1500, type: 'danger', city: 'chennai', name: 'T. Nagar Zone', users: 45, withdrawn: '₹ 85,400' },
+            { center: [13.0900, 80.2100], radius: 1200, type: 'warning', city: 'chennai', name: 'Anna Nagar Zone', users: 120, withdrawn: '₹ 1,20,000' },
+            { center: [13.0067, 80.2206], radius: 1000, type: 'success', city: 'chennai', name: 'Adyar Zone', users: 210, withdrawn: '₹ 2,45,000' },
+            // Bangalore
+            { center: [12.9279, 77.6271], radius: 1500, type: 'danger', city: 'bangalore', name: 'Koramangala Zone', users: 80, withdrawn: '₹ 92,000' },
+            { center: [12.9784, 77.6408], radius: 1200, type: 'success', city: 'bangalore', name: 'Indiranagar Zone', users: 340, withdrawn: '₹ 5,10,000' },
+            { center: [12.9141, 77.5937], radius: 1000, type: 'warning', city: 'bangalore', name: 'JP Nagar Zone', users: 150, withdrawn: '₹ 2,10,000' },
+            // Mumbai
+            { center: [19.0596, 72.8295], radius: 1500, type: 'danger', city: 'mumbai', name: 'Bandra Zone', users: 65, withdrawn: '₹ 1,15,000' },
+            { center: [19.1136, 72.8697], radius: 2000, type: 'warning', city: 'mumbai', name: 'Andheri Zone', users: 280, withdrawn: '₹ 4,30,000' },
+            { center: [18.9219, 72.8347], radius: 1000, type: 'success', city: 'mumbai', name: 'Colaba Zone', users: 190, withdrawn: '₹ 3,20,000' },
+            // Delhi
+            { center: [28.6289, 77.2150], radius: 1200, type: 'danger', city: 'delhi', name: 'Connaught Place', users: 95, withdrawn: '₹ 1,80,000' },
+            { center: [28.5244, 77.1855], radius: 1500, type: 'success', city: 'delhi', name: 'Saket Zone', users: 410, withdrawn: '₹ 6,80,000' },
+            // Hyderabad
+            { center: [17.4401, 78.3489], radius: 1800, type: 'danger', city: 'hyderabad', name: 'Gachibowli Tech Zone', users: 110, withdrawn: '₹ 2,20,000' },
+            { center: [17.3833, 78.4011], radius: 1500, type: 'warning', city: 'hyderabad', name: 'Banjara Hills', users: 145, withdrawn: '₹ 3,15,000' },
+            { center: [17.3616, 78.4747], radius: 1000, type: 'success', city: 'hyderabad', name: 'Charminar Area', users: 320, withdrawn: '₹ 1,90,000' },
+            // Pune
+            { center: [18.5289, 73.8744], radius: 1200, type: 'danger', city: 'pune', name: 'Camp Zone', users: 55, withdrawn: '₹ 78,000' },
+            { center: [18.5679, 73.9143], radius: 1500, type: 'success', city: 'pune', name: 'Viman Nagar', users: 290, withdrawn: '₹ 4,20,000' },
+            // Ahmedabad
+            { center: [23.0257, 72.5033], radius: 1400, type: 'warning', city: 'ahmedabad', name: 'Prahlad Nagar', users: 130, withdrawn: '₹ 1,95,000' },
+            { center: [23.0120, 72.6026], radius: 1200, type: 'success', city: 'ahmedabad', name: 'Maninagar Zone', users: 180, withdrawn: '₹ 2,10,000' },
+            // Kolkata
+            { center: [22.5735, 88.4331], radius: 1500, type: 'danger', city: 'kolkata', name: 'Salt Lake Sector V', users: 85, withdrawn: '₹ 1,55,000' },
+            { center: [22.5180, 88.3832], radius: 1200, type: 'warning', city: 'kolkata', name: 'Kasba Zone', users: 110, withdrawn: '₹ 95,000' },
+            // Jaipur
+            { center: [26.9042, 75.7932], radius: 1300, type: 'success', city: 'jaipur', name: 'C-Scheme Zone', users: 150, withdrawn: '₹ 2,40,000' },
+            // Lucknow
+            { center: [26.8521, 80.9922], radius: 1400, type: 'warning', city: 'lucknow', name: 'Gomti Nagar', users: 95, withdrawn: '₹ 1,10,000' },
+            // Chandigarh
+            { center: [30.7338, 76.7735], radius: 1000, type: 'success', city: 'chandigarh', name: 'Sector 17 Market', users: 220, withdrawn: '₹ 3,80,000' },
+            // Coimbatore
+            { center: [11.0183, 76.9724], radius: 1500, type: 'danger', city: 'coimbatore', name: 'Gandhipuram Zone', users: 75, withdrawn: '₹ 1,12,000' },
+            { center: [10.9967, 76.9661], radius: 1200, type: 'warning', city: 'coimbatore', name: 'RS Puram Sector', users: 130, withdrawn: '₹ 1,90,000' },
+            { center: [11.0255, 77.0123], radius: 1800, type: 'success', city: 'coimbatore', name: 'Peelamedu Tech Park', users: 310, withdrawn: '₹ 4,45,000' }
+        ];
+
+        const users = [
+            // Chennai - T. Nagar (Danger)
+            { id: 'SW-101', name: 'Rahul K.', platform: 'Swiggy', lat: 13.0418, lng: 80.2341, city: 'chennai' },
+            { id: 'ZM-102', name: 'Priya S.', platform: 'Zomato', lat: 13.0425, lng: 80.2355, city: 'chennai' },
+            // Chennai - Anna Nagar (Warning)
+            { id: 'SW-103', name: 'Arun V.', platform: 'Swiggy', lat: 13.0900, lng: 80.2100, city: 'chennai' },
+            // Chennai - Adyar (Success)
+            { id: 'ZM-104', name: 'Suresh R.', platform: 'Zomato', lat: 13.0067, lng: 80.2206, city: 'chennai' },
+
+            // Bangalore - Koramangala (Danger)
+            { id: 'SW-201', name: 'Amit S.', platform: 'Swiggy', lat: 12.9279, lng: 77.6271, city: 'bangalore' },
+            // Bangalore - Indiranagar (Success)
+            { id: 'ZM-202', name: 'Vikram R.', platform: 'Zomato', lat: 12.9784, lng: 77.6408, city: 'bangalore' },
+            // Bangalore - JP Nagar (Warning)
+            { id: 'SW-203', name: 'Deepika P.', platform: 'Swiggy', lat: 12.9141, lng: 77.5937, city: 'bangalore' },
+
+            // Mumbai - Bandra (Danger)
+            { id: 'ZM-301', name: 'Rohan M.', platform: 'Zomato', lat: 19.0596, lng: 72.8295, city: 'mumbai' },
+            // Mumbai - Andheri (Warning)
+            { id: 'SW-302', name: 'Sneha K.', platform: 'Swiggy', lat: 19.1136, lng: 72.8697, city: 'mumbai' },
+            // Mumbai - Colaba (Success)
+            { id: 'ZM-303', name: 'Karan J.', platform: 'Zomato', lat: 18.9219, lng: 72.8347, city: 'mumbai' },
+
+            // Delhi - CP (Danger)
+            { id: 'SW-401', name: 'Nitin M.', platform: 'Swiggy', lat: 28.6289, lng: 77.2150, city: 'delhi' },
+            // Delhi - Saket (Success)
+            { id: 'ZM-402', name: 'Anjali T.', platform: 'Zomato', lat: 28.5244, lng: 77.1855, city: 'delhi' },
+
+            // Hyderabad - Gachibowli (Danger)
+            { id: 'SW-501', name: 'Mahesh B.', platform: 'Swiggy', lat: 17.4401, lng: 78.3489, city: 'hyderabad' },
+            // Hyderabad - Banjara Hills (Warning)
+            { id: 'ZM-502', name: 'Chenna K.', platform: 'Zomato', lat: 17.3833, lng: 78.4011, city: 'hyderabad' },
+            // Hyderabad - Charminar (Success)
+            { id: 'SW-503', name: 'Sameer U.', platform: 'Swiggy', lat: 17.3616, lng: 78.4747, city: 'hyderabad' },
+
+            // Pune - Camp (Danger)
+            { id: 'ZM-601', name: 'Omkar S.', platform: 'Zomato', lat: 18.5289, lng: 73.8744, city: 'pune' },
+            // Pune - Viman Nagar (Success)
+            { id: 'SW-602', name: 'Tanvi G.', platform: 'Swiggy', lat: 18.5679, lng: 73.9143, city: 'pune' },
+
+            // Ahmedabad - Prahlad Nagar (Warning)
+            { id: 'ZM-701', name: 'Hardik P.', platform: 'Zomato', lat: 23.0257, lng: 72.5033, city: 'ahmedabad' },
+            // Ahmedabad - Maninagar (Success)
+            { id: 'SW-702', name: 'Jignesh B.', platform: 'Swiggy', lat: 23.0120, lng: 72.6026, city: 'ahmedabad' },
+
+            // Kolkata - Salt Lake (Danger)
+            { id: 'ZM-801', name: 'Sourav G.', platform: 'Zomato', lat: 22.5735, lng: 88.4331, city: 'kolkata' },
+            // Kolkata - Kasba (Warning)
+            { id: 'SW-802', name: 'Ishita D.', platform: 'Swiggy', lat: 22.5180, lng: 88.3832, city: 'kolkata' },
+
+            // Jaipur - C-Scheme (Success)
+            { id: 'ZM-901', name: 'Rajesh K.', platform: 'Zomato', lat: 26.9042, lng: 75.7932, city: 'jaipur' },
+
+            // Lucknow - Gomti Nagar (Warning)
+            { id: 'SW-1001', name: 'Prateek S.', platform: 'Swiggy', lat: 26.8521, lng: 80.9922, city: 'lucknow' },
+
+            // Chandigarh - Sector 17 (Success)
+            { id: 'ZM-1101', name: 'Gagan D.', platform: 'Zomato', lat: 30.7338, lng: 76.7735, city: 'chandigarh' },
+
+            // Coimbatore - Gandhipuram (Danger)
+            { id: 'SW-1201', name: 'Mani R.', platform: 'Swiggy', lat: 11.0183, lng: 76.9724, city: 'coimbatore' },
+            // Coimbatore - RS Puram (Warning)
+            { id: 'ZM-1202', name: 'Kavya B.', platform: 'Zomato', lat: 10.9967, lng: 76.9661, city: 'coimbatore' },
+            // Coimbatore - Peelamedu (Success)
+            { id: 'SW-1203', name: 'Senthil K.', platform: 'Swiggy', lat: 11.0255, lng: 77.0123, city: 'coimbatore' }
+        ];
+
+        // --- LAYER GROUPS ---
+        const zoneLayer = L.layerGroup().addTo(map);
+        const userLayer = L.layerGroup().addTo(map);
+
+        // --- FUNCTIONS ---
+
+        function renderMap() {
+            zoneLayer.clearLayers();
+            userLayer.clearLayers();
+
+            const currentCity = document.getElementById('region-filter').value;
+
+            // Render Zones
+            zones.filter(z => z.city === currentCity).forEach(zone => {
+                const color = THEME_COLORS[zone.type];
+                L.circle(zone.center, {
+                    color: color,
+                    fillColor: color,
+                    fillOpacity: 0.2,
+                    radius: zone.radius
+                }).addTo(zoneLayer)
+                .bindPopup(`
+                    <div class="popup-header">
+                        <div class="popup-title">${zone.name}</div>
+                        <div class="popup-subtitle">${zone.type.toUpperCase()} DISRUPTION</div>
+                    </div>
+                    <div class="popup-body">
+                        <div class="popup-item">
+                            <span class="popup-label">Active Partners</span>
+                            <span class="popup-value">${zone.users}</span>
+                        </div>
+                        <div class="popup-item">
+                            <span class="popup-label">Total Withdrawn</span>
+                            <span class="popup-value">${zone.withdrawn}</span>
+                        </div>
+                    </div>
+                `);
+            });
+
+            // Render Users
+            users.filter(u => u.city === currentCity).forEach(user => {
+                const icon = L.divIcon({
+                    className: 'user-marker',
+                    html: `<div class="vehicle-icon"><i data-lucide="bike" style="width: 16px; height: 16px;"></i></div>`,
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 20]
+                });
+
+                L.marker([user.lat, user.lng], { icon: icon }).addTo(userLayer)
+                .bindPopup(`
+                    <div class="popup-header" style="background: var(--color-text-primary)">
+                        <div class="popup-title">${user.name}</div>
+                        <div class="popup-subtitle">Live Tracking</div>
+                    </div>
+                    <div class="popup-body">
+                        <div class="popup-item">
+                            <span class="popup-label">Partner ID</span>
+                            <span class="popup-value">${user.id}</span>
+                        </div>
+                        <div class="popup-item">
+                            <span class="popup-label">Platform</span>
+                            <span class="popup-value">${user.platform}</span>
+                        </div>
+                        <div class="popup-item">
+                            <span class="popup-label">Status</span>
+                            <span class="popup-value" style="color: var(--color-success)">Online</span>
+                        </div>
+                    </div>
+                `);
+            });
+
+            // Re-run Lucide for new icons in markers
+            lucide.createIcons();
+        }
+
+        // --- EVENTS ---
+
+        document.getElementById('region-filter').addEventListener('change', (e) => {
+            const city = e.target.value;
+            if (regions[city]) {
+                map.flyTo(regions[city], 13);
+                setTimeout(renderMap, 500);
+            }
+        });
+
+        // Initialize
+        renderMap();
+
+    </script>
+</body>
+</html>

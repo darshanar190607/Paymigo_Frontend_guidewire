@@ -1,0 +1,40 @@
+{
+  "model": "RandomForestClassifier",
+  "features": [
+    "duration_minutes",
+    "raw_value",
+    "source_confidence",
+    "multi_source_match",
+    "sustained_event",
+    "variability",
+    "trend",
+    "threshold_ratio",
+    "intensity_score",
+    "reliability_score",
+    "duration_flag",
+    "conf_x_duration",
+    "variability_inv"
+  ],
+  "target": "label_trigger",
+  "best_params": {
+    "n_estimators": 100,
+    "min_samples_split": 5,
+    "min_samples_leaf": 2,
+    "max_features": "log2",
+    "max_depth": null
+  },
+  "selected_threshold": 0.5,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1_score": 1.0,
+  "roc_auc": 1.0,
+  "false_positives": 0,
+  "top5_features": [
+    "duration_minutes",
+    "conf_x_duration",
+    "intensity_score",
+    "threshold_ratio",
+    "raw_value"
+  ],
+  "trained": true
+}

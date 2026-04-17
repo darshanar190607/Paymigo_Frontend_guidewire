@@ -1,0 +1,121 @@
+# ═══════════════════════════════════════════════════════════════
+#  PayMigo — Root .gitignore
+#  ⚠️  NEVER commit real .env files — use .env.example instead
+# ═══════════════════════════════════════════════════════════════
+
+# ─── Environment / Secrets (NEVER COMMIT) ──────────────────────
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+*.env
+!*.env.example         # allow example templates
+
+# ─── Node / npm ────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnp
+.pnp.js
+package-lock.json     # optional: keep if you prefer lock files tracked
+
+# ─── Build output ──────────────────────────────────────────────
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+
+# ─── Vite ──────────────────────────────────────────────────────
+dist-ssr/
+*.local
+
+# ─── Prisma generated client ───────────────────────────────────
+backend/generated/
+backend/node_modules/
+
+# ─── Python / ML Services ──────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
+ml-services/venv/
+ml-services/.venv/
+venv/
+.venv/
+*.egg-info/
+dist/
+*.so
+*.whl
+
+# ─── ML Model files (large binaries) ───────────────────────────
+*.h5
+*.pkl
+*.joblib
+*.keras
+*.ckpt
+*.pt
+*.pth
+*.onnx
+# ↑ Commit these selectively with Git LFS or exclude to keep repo lean
+
+# ─── IDE / Editor ──────────────────────────────────────────────
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ─── Logs ──────────────────────────────────────────────────────
+logs/
+*.log
+*.log.*
+
+# ─── OS ────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+ehthumbs.db
+
+# ─── Test artifacts ────────────────────────────────────────────
+coverage/
+.nyc_output/
+junit.xml
+
+# ─── Misc ──────────────────────────────────────────────────────
+*.zip
+*.tar.gz
+*.rar
+*.bak
+*.swp
+*.tmp
+scratch_*.js
+scratch_*.py
+debug_*.js
+test_*.js        # scratch test files (not unit tests)
+*.cache
+.cache/
+.turbo/
+
+# ─── Firebase service account (CRITICAL — never commit) ────────
+firebase-adminsdk-*.json
+serviceAccountKey.json
+*-service-account*.json
+
+# ─── Kiro AI workspace configs ─────────────────────────────────
+.kiro/

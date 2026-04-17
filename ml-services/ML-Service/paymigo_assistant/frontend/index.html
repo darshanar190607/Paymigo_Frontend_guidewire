@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Migo Assistant</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <main class="chat-shell">
+      <section class="chat-panel">
+        <div class="chat-header">
+          <div>
+            <span class="badge">Migo</span>
+            <h1>Migo Assistant</h1>
+            <p class="subtitle">Ask questions, check claims, plans and payouts.</p>
+          </div>
+          <button id="resetBtn" class="reset-btn" title="Clear conversation">Clear</button>
+        </div>
+
+        <div id="messages" class="messages"></div>
+
+        <form id="chatForm" class="chat-form">
+          <input id="chatInput" type="text" placeholder="Ask Migo something..." autocomplete="off" />
+          <button type="submit">Send</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

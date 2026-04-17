@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAYMIGO | Intelligent Risk & Operations</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#aa4500',
+                        'primary-dim': '#973c00',
+                        'primary-container': '#ff7a2f',
+                        'primary-fixed-dim': '#f66700',
+                        secondary: '#716157',
+                        'secondary-dim': '#64554b',
+                        'secondary-container': '#f4ded1',
+                        tertiary: '#865c00',
+                        'tertiary-dim': '#765100',
+                        'tertiary-fixed': '#feb300',
+                        'tertiary-fixed-dim': '#eda600',
+                        error: '#be2d06',
+                        'error-dim': '#b92902',
+                        'error-container': '#f95630',
+                        surface: '#fffbff',
+                        'surface-dim': '#e6e2dc',
+                        'surface-bright': '#fffbff',
+                        'surface-variant': '#ebe8e1',
+                        'surface-container-lowest': '#ffffff',
+                        'surface-container-low': '#fdf9f3',
+                        'surface-container': '#f7f3ed',
+                        'surface-container-high': '#f1ede7',
+                        'surface-container-highest': '#ebe8e1',
+                        'on-surface': '#393835',
+                        'on-surface-variant': '#666460',
+                        'outline': '#82807c',
+                        'outline-variant': '#bcb9b4',
+                    },
+                    fontFamily: {
+                        headline: ['Manrope', 'sans-serif'],
+                        body: ['Inter', 'sans-serif'],
+                        label: ['Inter', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'none': '0',
+                        'sm': '0.125rem',
+                        DEFAULT: '1rem',
+                        'lg': '2rem',
+                        'xl': '3rem',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/css">
+        @layer base {
+            body {
+                background-color: #fffbff;
+                color: #393835;
+                font-family: 'Inter', sans-serif;
+                min-height: 100vh;
+                -webkit-font-smoothing: antialiased;
+            }
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .sand-shadow {
+            box-shadow: 0px 20px 40px rgba(113, 97, 87, 0.06);
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Tooltip animation */
+        #heatmap-tooltip {
+            transition: opacity 0.15s ease-out, transform 0.1s ease-out;
+            pointer-events: none;
+        }
+
+        /* Custom Area Gradient */
+        .chart-area {
+            fill: url(#areaGradient);
+        }
+
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.05); }
+        }
+
+        .animate-pulse-slow {
+            animation: pulse-slow 3s infinite ease-in-out;
+        }
+
+        /* Smooth gauge and graph transitions */
+        circle, path {
+            transition: stroke-dashoffset 1s ease-in-out, d 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface flex flex-col min-h-screen Selection:bg-primary/10">
+
+    <!-- Top Navigation Bar -->
+    <header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-surface-variant sand-shadow">
+        <div class="max-w-[1600px] mx-auto px-6 lg:px-12 flex justify-between items-center h-20">
+            <div class="flex items-center gap-4">
+                <div class="h-10 w-10 rounded-xl bg-surface-container-high flex items-center justify-center border border-primary/20 shrink-0">
+                    <span class="material-symbols-outlined text-primary text-xl">admin_panel_settings</span>
+                </div>
+                <h1 class="text-xl font-extrabold tracking-tighter text-primary font-headline leading-tight hidden sm:block">PAYMIGO Admin</h1>
+            </div>
+
+            <!-- Desktop Nav -->
+            <nav class="hidden lg:flex items-center gap-1 bg-surface-container-low p-1 rounded-2xl border border-surface-variant/50">
+                <a class="flex items-center gap-2 px-6 py-2 rounded-xl bg-primary text-white font-bold transition-all shadow-md shadow-primary/20" href="#">
+                    <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                    <span class="font-body text-xs">Overview</span>
+                </a>
+                <a class="flex items-center gap-2 px-6 py-2 rounded-xl text-on-surface-variant hover:bg-surface-variant/50 hover:text-primary transition-all" href="#">
+                    <span class="material-symbols-outlined text-[20px]">settings</span>
+                    <span class="font-body text-xs">Settings</span>
+                </a>
+            </nav>
+
+            <div class="flex items-center gap-4">
+                <button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-variant/50">search</button>
+                <button id="chat-toggle" onclick="toggleChat()" class="w-10 h-10 rounded-full bg-primary text-white border border-primary/20 flex items-center justify-center shadow-lg shadow-primary/30 hover:scale-110 transition-all">
+                    <span class="material-symbols-outlined text-[20px]">smart_toy</span>
+                </button>
+                <div class="h-10 w-10 rounded-full bg-primary-container/20 flex items-center justify-center border border-primary/20">
+                    <span class="material-symbols-outlined text-primary">person</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow pt-28 pb-32 px-6 lg:px-12 max-w-[1600px] mx-auto w-full space-y-8">
+        <!-- Hero Header -->
+        <section class="flex flex-col lg:flex-row justify-between items-center lg:items-end gap-6 bg-surface-container-low rounded-lg p-8 lg:p-10 sand-shadow">
+            <div class="space-y-4 w-full">
+                <div class="flex items-center gap-3">
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-fixed-dim opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+                    </span>
+                    <span class="text-xs font-bold uppercase tracking-widest text-primary">Parametric Trigger Monitoring</span>
+                </div>
+                <h2 class="text-4xl lg:text-5xl font-headline font-bold tracking-tight leading-tight">Live Risk & <span class="text-primary italic">Exposure Analytics.</span></h2>
+            </div>
+            <div class="w-full lg:w-auto flex flex-col items-center lg:items-end gap-2">
+                    <div class="flex gap-2 p-1 bg-surface-container-low rounded-full border border-surface-variant">
+                        <button id="scen-nominal" class="bg-primary text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">Nominal</button>
+                        <button id="scen-storm" class="text-on-surface-variant px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:bg-surface-variant/50 transition-all">Major Storm</button>
+                        <button id="scen-flood" class="text-on-surface-variant px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:bg-surface-variant/50 transition-all">Flood Alert</button>
+                    </div>
+                    <div class="bg-surface-container-lowest glass-card rounded-lg px-6 py-4 flex items-center gap-4 w-full lg:w-max">
+                    <div class="text-right">
+                        <p class="text-[10px] uppercase tracking-widest text-on-surface-variant">Data Pipeline</p>
+                        <p id="live-status-text" class="font-body text-sm font-semibold">LSTM Model Connected</p>
+                    </div>
+                    <div class="flex gap-1.5 h-8 items-end">
+                        <div class="w-1.5 bg-primary rounded-full h-4 animate-pulse"></div>
+                        <div class="w-1.5 bg-primary rounded-full h-7 animate-pulse delay-75"></div>
+                        <div class="w-1.5 bg-primary rounded-full h-3 animate-pulse delay-150"></div>
+                        <div class="w-1.5 bg-primary rounded-full h-6 animate-pulse delay-200"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Top Row: Metrics Grid -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Metric 1 -->
+            <div class="glass-card rounded-lg p-8 sand-shadow flex flex-col items-center space-y-6 transition-transform hover:-translate-y-1">
+                <div class="w-full flex justify-between items-start">
+                    <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Trigger Predictions</span>
+                    <span class="material-symbols-outlined text-primary">sensors</span>
+                </div>
+                <div class="relative h-40 w-40 flex items-center justify-center">
+                    <svg class="absolute inset-0 w-full h-full transform -rotate-90">
+                        <circle class="text-surface-variant" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" stroke-width="10"></circle>
+                        <circle id="ring-1" class="text-primary" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" stroke-dasharray="440" stroke-dashoffset="60" stroke-width="10"></circle>
+                    </svg>
+                    <div class="text-center">
+                        <span id="prob-percentage" class="text-3xl font-headline font-bold">86%</span>
+                        <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1">LSTM Probability</p>
+                    </div>
+                </div>
+                <p class="text-xs text-center text-on-surface-variant px-2">High likelihood of <span class="text-primary font-bold">Flood Threshold</span> breach in Zone 4 within 12h.</p>
+            </div>
+            <!-- Metric 2 -->
+            <div class="glass-card rounded-lg p-8 sand-shadow flex flex-col items-center space-y-6 transition-transform hover:-translate-y-1">
+                <div class="w-full flex justify-between items-start">
+                    <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Claim Load Forecast</span>
+                    <span class="material-symbols-outlined text-tertiary-fixed-dim">assignment_late</span>
+                </div>
+                <div class="relative h-40 w-40 flex items-center justify-center">
+                    <svg class="absolute inset-0 w-full h-full transform -rotate-90">
+                        <circle class="text-surface-variant" cx="80" cy="80" fill="transparent" r="70" stroke="currentColor" stroke-width="8"></circle>
+                        <circle id="ring-2" cx="80" cy="80" fill="transparent" r="70" stroke="url(#orangeGradient)" stroke-dasharray="440" stroke-dashoffset="210" stroke-linecap="round" stroke-width="12"></circle>
+                        <defs>
+                            <linearGradient id="orangeGradient" x1="0%" x2="100%" y1="0%" y2="0%">
+                                <stop offset="0%" stop-color="#ff7a2f"></stop>
+                                <stop offset="100%" stop-color="#feb300"></stop>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="text-center">
+                        <span id="claim-vol" class="text-3xl font-headline font-bold">1,250</span>
+                        <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1">Expected Vol.</p>
+                    </div>
+                </div>
+                <p class="text-xs text-center text-on-surface-variant px-2">Anticipated claims surge requires <span class="text-tertiary-dim font-bold">+18% adjustments</span> staff capability.</p>
+            </div>
+            <!-- Metric 3 -->
+            <div class="glass-card rounded-lg p-8 sand-shadow flex flex-col items-center space-y-6 transition-transform hover:-translate-y-1">
+                <div class="w-full flex justify-between items-start">
+                    <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Aggregate Exposure</span>
+                    <span class="material-symbols-outlined text-primary">account_balance</span>
+                </div>
+                <div class="h-40 w-full flex items-end justify-center gap-1.5 pb-2">
+                    <div class="w-2.5 bg-surface-variant rounded-full h-12"></div>
+                    <div class="w-2.5 bg-surface-variant rounded-full h-16"></div>
+                    <div class="w-2.5 bg-primary-container rounded-full h-24"></div>
+                    <div class="w-2.5 bg-primary rounded-full h-32"></div>
+                    <div class="w-2.5 bg-primary-container rounded-full h-36"></div>
+                    <div class="w-2.5 bg-surface-variant rounded-full h-20"></div>
+                    <div class="w-2.5 bg-surface-variant rounded-full h-14"></div>
+                </div>
+                <div class="text-center">
+                    <p id="exposed-cap" class="text-xs font-body font-semibold">$48.2M Exposed Capital</p>
+                    <p class="text-[9px] text-on-surface-variant uppercase tracking-widest mt-1">Current dynamic total</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content Grid -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Risk Forecast Chart -->
+            <div class="lg:col-span-2 bg-surface-container rounded-lg p-10 sand-shadow flex flex-col min-h-[500px]">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+                    <div>
+                        <h3 class="text-2xl font-headline font-bold">Systemic Risk Forecast</h3>
+                        <p class="text-sm text-on-surface-variant mt-1">30-day algorithmic risk probability across underwritten properties.</p>
+                    </div>
+                    <div class="flex gap-2 p-1 bg-surface-container-lowest rounded-full border border-surface-variant shadow-sm">
+                        <button id="btn-hourly" class="px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all text-on-surface-variant hover:text-primary">Hourly</button>
+                        <button id="btn-daily" class="bg-primary text-white px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest shadow-md">Daily</button>
+                    </div>
+                </div>
+                <div class="relative flex-grow flex flex-col">
+                    <div class="relative w-full h-full min-h-[300px]">
+                        <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+                            <defs>
+                                <linearGradient id="areaGradient" x1="0%" x2="0%" y1="0%" y2="100%">
+                                    <stop offset="0%" stop-color="#aa4500" stop-opacity="0.25"></stop>
+                                    <stop offset="100%" stop-color="#fffbff" stop-opacity="0"></stop>
+                                </linearGradient>
+                            </defs>
+                            <path id="risk-area-path" d="M0,85 Q15,75 30,55 T60,40 T90,15 L100,10 L100,100 L0,100 Z" class="chart-area"></path>
+                            <path id="risk-chart-path" d="M0,85 Q15,75 30,55 T60,40 T90,15 L100,10" fill="none" stroke="#aa4500" stroke-linecap="round" stroke-width="2.5"></path>
+                            <line x1="0" y1="30" x2="100" y2="30" stroke="#f95630" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>
+                            <text x="2" y="27" fill="#f95630" font-size="3" font-weight="bold" opacity="0.8">CRITICAL TRIGGER THRESHOLD</text>
+                        </svg>
+                    </div>
+                    <div id="chart-labels" class="flex justify-between mt-6 px-2 text-[10px] text-on-surface-variant font-bold uppercase tracking-[0.2em]">
+                        <span>AUG 10</span>
+                        <span>AUG 15</span>
+                        <span>AUG 20</span>
+                        <span>AUG 25</span>
+                        <span>AUG 30</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Premium Impact Panel -->
+            <div class="bg-surface-container-high rounded-lg p-8 sand-shadow flex flex-col">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h3 class="text-xl font-headline font-bold">Premium Flux</h3>
+                        <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1">Live Pricing Engine</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="surge-index" class="text-2xl font-headline font-extrabold text-primary">1.12x</span>
+                        <p class="text-[9px] text-on-surface-variant uppercase tracking-widest">Surge Index</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4 flex-grow">
+                    <!-- Segmented LOB Controls -->
+                    <div class="p-4 bg-surface rounded-xl border-l-4 border-error shadow-sm hover:translate-x-1 transition-transform cursor-default">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Residential Home</span>
+                            <span id="lob-1-val" class="text-xs font-bold text-error">+8.4%</span>
+                        </div>
+                        <div class="w-full h-1 bg-surface-variant rounded-full mt-2 overflow-hidden">
+                            <div id="lob-1-bar" class="h-full bg-error" style="width: 85%"></div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-surface rounded-xl border-l-4 border-primary shadow-sm hover:translate-x-1 transition-transform cursor-default">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Commercial Prop.</span>
+                            <span id="lob-2-val" class="text-xs font-bold text-primary">+2.1%</span>
+                        </div>
+                        <div class="w-full h-1 bg-surface-variant rounded-full mt-2 overflow-hidden">
+                            <div id="lob-2-bar" class="h-full bg-primary" style="width: 45%"></div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-surface rounded-xl border-l-4 border-tertiary-dim shadow-sm hover:translate-x-1 transition-transform cursor-default">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Supply Chain</span>
+                            <span id="lob-3-val" class="text-xs font-bold text-tertiary-dim">Nominal</span>
+                        </div>
+                        <div class="w-full h-1 bg-surface-variant rounded-full mt-2 overflow-hidden">
+                            <div id="lob-3-bar" class="h-full bg-tertiary-dim" style="width: 10%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Resilience Score -->
+                    <div class="mt-4 p-5 bg-surface-container-highest rounded-2xl border border-white/40">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[10px] font-bold uppercase tracking-widest">Pricing Resilience</span>
+                            <span class="text-[10px] font-bold text-primary">High</span>
+                        </div>
+                        <p class="text-[11px] leading-relaxed text-on-surface-variant italic">
+                            Portfolio elasticity allows for moderate surcharge expansion in <span class="font-bold">Zone 1</span> without significant churning risk.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Zone Heatmap -->
+            <div class="lg:col-span-3 bg-surface-container rounded-lg overflow-hidden sand-shadow">
+                <div class="flex flex-col lg:flex-row min-h-[450px]">
+                    <div class="w-full lg:w-1/3 p-10 space-y-8 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-surface-variant/30">
+                        <div>
+                            <h3 class="text-2xl font-headline font-bold">Zone Risk Heatmap</h3>
+                            <p class="text-sm text-on-surface-variant leading-relaxed mt-2">Real-time density analysis of predicted claims and property index concentrations.</p>
+                        </div>
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-bold uppercase tracking-wider">Harbor Tech Hub</span>
+                                    <span class="text-xs font-bold text-error">Critical Risk</span>
+                                </div>
+                                <div class="w-full h-2 bg-surface-variant/50 rounded-full overflow-hidden">
+                                    <div class="w-[92%] h-full bg-error rounded-full"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-bold uppercase tracking-wider">Coastal Residential</span>
+                                    <span class="text-xs font-bold text-primary">Elevated</span>
+                                </div>
+                                <div class="w-full h-2 bg-surface-variant/50 rounded-full overflow-hidden">
+                                    <div class="w-[75%] h-full bg-primary rounded-full"></div>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex flex-col gap-3">
+                                <div class="p-3 rounded-2xl bg-primary/10 border border-primary/20 text-center">
+                                    <p class="text-[10px] text-primary font-bold uppercase tracking-widest">AI Recommendation</p>
+                                    <p class="text-xs font-body mt-1 italic">"Request systemic rate hedging for Zone 1."</p>
+                                </div>
+                        <button onclick="toggleChat()" class="w-full bg-surface-container-highest text-primary py-4 rounded-full font-headline font-bold uppercase tracking-wider border border-primary/20 hover:bg-primary/5 transition-all flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+                            Discuss with PAYMIGO AI
+                        </button>
+                            </div>
+                            <div class="pt-4">
+                                <button onclick="toggleChat()" class="flex items-center gap-2 text-primary font-bold text-sm hover:underline underline-offset-4">
+                                    <span>Dispatch adjusters</span>
+                                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="heatmap-container" class="w-full lg:w-2/3 relative h-[350px] lg:h-[480px] overflow-hidden bg-[#e5e5f7]">
+                        <!-- Patterns -->
+                        <div class="absolute inset-0 opacity-20" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23aa4500\' fill-opacity=\'0.4\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3Ccircle cx=\'13\' cy=\'13\' r=\'3\'/%3E%3C/g%3E%3C/svg%3E')"></div>
+                        
+                        <img alt="topographic heatmap" class="w-full h-full object-cover object-center opacity-60 mix-blend-multiply relative z-0 pointer-events-none" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBt1k1y3WYOXrQ_ihBLfw0l7hQgwwOueVR-CFlveN4TRG69y9EwFjNo2yJ9Yv9G-3v-btj6u8bmQQ-KL9J5ibtd1PfMWMmYMDmopE6zeOGf5uB3WQqIGOe-E5VA6q9v35DLLq0S8mvcl-kDFcKqWE6tW7STut1g7FzbldecUiRyqMfWbVUexibU9_CH12LukFORqKiZ9dpd_AWbQVExzP2tURhGlw2Szkp2_8zvie5rSJNfIhiUBRFPxz9colcUwLvKKqOUmUBgRnNb"/>
+                        
+                        <!-- Heatmap Glows -->
+                        <div id="glow-0" class="absolute top-1/4 left-1/3 w-40 h-40 bg-error/40 rounded-full blur-[60px] pointer-events-none transition-all duration-500 ease-out animate-pulse-slow"></div>
+                        <div id="glow-1" class="absolute bottom-1/4 right-1/4 w-64 h-64 bg-primary/30 rounded-full blur-[80px] pointer-events-none transition-all duration-500 ease-out opacity-80"></div>
+                        <div id="glow-2" class="absolute top-1/2 left-1/2 w-48 h-48 bg-[#f95630]/30 rounded-full blur-[60px] transform pointer-events-none -translate-x-1/2 -translate-y-1/2 mix-blend-overlay transition-all duration-500 ease-out opacity-80"></div>
+                        
+                        <!-- Hotspots -->
+                        <div class="hotspot absolute rounded-full cursor-crosshair z-20" data-idx="0" style="left: 33%; top: 25%; width: 10rem; height: 10rem;"></div>
+                        <div class="hotspot absolute rounded-full cursor-crosshair z-20" data-idx="1" style="left: 75%; top: 75%; width: 16rem; height: 16rem; transform: translate(-50%, -50%);"></div>
+                        <div class="hotspot absolute rounded-full cursor-crosshair z-20" data-idx="2" style="left: 50%; top: 50%; width: 12rem; height: 12rem; transform: translate(-50%, -50%);"></div>
+
+                        <!-- Tooltip -->
+                        <div id="heatmap-tooltip" class="absolute z-30 opacity-0 transition-opacity glass-card p-4 rounded-xl border border-white/40 shadow-2xl w-60">
+                            <p id="tooltip-title" class="text-[10px] font-bold uppercase tracking-widest"></p>
+                            <div class="my-2 h-px w-full bg-surface-variant"></div>
+                            <p id="tooltip-risk" class="text-xs font-bold text-on-surface"></p>
+                            <p id="tooltip-impact" class="text-[10px] text-on-surface-variant mt-1 leading-relaxed"></p>
+                        </div>
+
+                        <!-- Alert Indicator -->
+                        <div class="absolute top-[20%] left-[30%] glass-card p-3 rounded-xl border border-error/40 shadow-xl flex items-center gap-3 animate-bounce">
+                            <span class="relative flex h-3 w-3">
+                              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+                              <span class="relative inline-flex rounded-full h-3 w-3 bg-error"></span>
+                            </span>
+                            <div>
+                              <p class="text-[10px] font-bold uppercase tracking-widest text-error">Trigger Breach Imminent</p>
+                              <p class="text-[9px] text-on-surface-variant">Cat 3 Winds Detected</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FAB -->
+    <button onclick="toggleChat()" class="fixed right-10 bottom-10 bg-gradient-to-br from-[#be2d06] to-[#ff7a2f] text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transform hover:scale-110 hover:rotate-12 transition-all active:scale-95 z-40 group">
+        <span class="material-symbols-outlined transition-transform group-hover:scale-110">smart_toy</span>
+    </button>
+
+    <!-- Mobile Navigation -->
+    <nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-surface lg:hidden rounded-t-[32px] shadow-[0px_-20px_40px_rgba(113,97,87,0.06)] border-t border-surface-variant">
+        <div class="flex flex-col items-center justify-center text-on-surface-variant p-2">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider mt-1">Overview</span>
+        </div>
+        <div class="flex flex-col items-center justify-center bg-primary text-white rounded-full p-3 mb-2 transform -translate-y-4 shadow-lg shadow-primary/30">
+            <span class="material-symbols-outlined">stacked_line_chart</span>
+        </div>
+        <div class="flex flex-col items-center justify-center text-on-surface-variant p-2">
+            <span class="material-symbols-outlined">map</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider mt-1">Heatmap</span>
+        </div>
+    </nav>
+
+    <!-- AI Chatbot Window -->
+    <div id="ai-chat-window" class="fixed bottom-24 right-8 w-[380px] h-[520px] bg-surface-container-lowest border border-surface-variant rounded-[32px] shadow-2xl z-[60] flex flex-col overflow-hidden opacity-0 scale-95 pointer-events-none transition-all duration-300 transform origin-bottom-right">
+        <!-- Chat Header -->
+        <div class="bg-primary p-6 text-white flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-white">smart_toy</span>
+                </div>
+                <div>
+                    <h3 class="font-headline font-bold text-sm">PAYMIGO AI</h3>
+                    <p class="text-[10px] opacity-80 uppercase tracking-widest">LSTM-Aware Assistant</p>
+                </div>
+            </div>
+            <button onclick="toggleChat()" class="hover:rotate-90 transition-all duration-300">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <!-- Chat Body -->
+        <div id="chat-body" class="flex-grow p-6 overflow-y-auto space-y-4 font-body text-sm bg-surface-container-lowest">
+            <div class="bg-surface-container p-4 rounded-2xl rounded-tl-none border border-surface-variant max-w-[85%]">
+                Hello! I'm your PAYMIGO assistant. I'm currently monitoring your live LSTM data.
+            </div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="p-6 border-t border-surface-variant bg-surface-container-low">
+            <div class="flex gap-2">
+                <input id="chat-input" type="text" placeholder="Ask AI_Risk_Chat_agent..." onkeydown="if(event.key==='Enter') sendMessage()" class="flex-grow bg-surface-container-highest border-none rounded-full px-5 py-3 text-xs font-body focus:ring-2 focus:ring-primary/20 outline-none">
+                <button id="chat-send-btn" onclick="sendMessage()" class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:scale-105 transition-all">
+                    <span class="material-symbols-outlined text-[18px]">send</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const zones = [
+            {
+                title: "Harbor Tech Hub",
+                risk: "Critical Storm Risk",
+                impact: "High asset concentration. Wind impact imminent.",
+                color: "text-error"
+            },
+            {
+                title: "Coastal Residential",
+                risk: "Elevated Flood",
+                impact: "Predicted +1.2m tidal surge within 12h.",
+                color: "text-primary"
+            },
+            {
+                title: "Central District",
+                risk: "Nominal",
+                impact: "Stable parameters. Standard operating risk.",
+                color: "text-tertiary-fixed-dim"
+            }
+        ];
+
+        // DYNAMIC ML MODEL INTEGRATION
+        let currentView = 'daily';
+        let currentScenario = 'nominal';
+        let currentZone = 0;
+        let lastMlData = null;
+
+        async function updateDashboard() {
+            try {
+                const response = await fetch(`/api/forecast?scenario=${currentScenario}&zone_id=${currentZone}`);
+                const result = await response.json();
+                
+                if (result.status === "success") {
+                    lastMlData = result.data;
+                    renderDashboard();
+                }
+            } catch (err) {
+                console.error("ML Sync Error:", err);
+                document.getElementById('live-status-text').textContent = "Model connection offline";
+            }
+        }
+
+        function renderDashboard() {
+            if (!lastMlData) return;
+            const mlData = lastMlData;
+
+            // Update UI Status
+            const zoneName = zones[currentZone]?.title || "Global";
+            document.getElementById('live-status-text').textContent = `${zoneName}: Feed Active ${new Date().toLocaleTimeString()}`;
+            
+            // Update Metric Cards
+            const maxProb = Math.max(...mlData.disruption_probability);
+            document.getElementById('prob-percentage').textContent = (maxProb * 100).toFixed(1) + '%';
+            document.getElementById('ring-1').setAttribute('stroke-dashoffset', 440 * (1 - maxProb));
+            document.getElementById('claim-vol').textContent = mlData.expected_claims.toLocaleString();
+            document.getElementById('ring-2').setAttribute('stroke-dashoffset', 440 * (1 - Math.min(mlData.expected_claims / 2500, 1)));
+            document.getElementById('exposed-cap').textContent = `$${mlData.exposed_capital}M Exposed Capital`;
+            
+            // Update Premium Impact Panel
+            const surgeIdx = (1 + (maxProb * 0.4)).toFixed(2) + 'x';
+            document.getElementById('surge-index').textContent = surgeIdx;
+            
+            const lob1 = (maxProb * 12).toFixed(1) + '%';
+            document.getElementById('lob-1-val').textContent = '+' + lob1;
+            document.getElementById('lob-1-bar').style.width = (maxProb * 100) + '%';
+            
+            const lob2 = (maxProb * 5).toFixed(1) + '%';
+            document.getElementById('lob-2-val').textContent = '+' + lob2;
+            document.getElementById('lob-2-bar').style.width = (maxProb * 60) + '%';
+            const chartPath = document.getElementById('risk-chart-path');
+            const areaPath = document.getElementById('risk-area-path');
+            const labelsEl = document.getElementById('chart-labels');
+            
+            if (chartPath && areaPath) {
+                const probs = currentView === 'daily' ? mlData.disruption_probability : mlData.hourly_probability;
+                const mapY = (p) => 85 - (p * 75); 
+                const step = 100 / (probs.length - 1);
+                
+                const points = probs.map((p, i) => `${i * step},${mapY(p)}`).join(' ');
+                const pathData = `M 0,${mapY(probs[0])} L ${points}`;
+                chartPath.setAttribute('d', pathData);
+                areaPath.setAttribute('d', `${pathData} L 100,100 L 0,100 Z`);
+
+                // Update Labels
+                if (currentView === 'daily') {
+                    labelsEl.innerHTML = `<span>AUG 10</span><span>AUG 15</span><span>AUG 20</span><span>AUG 25</span><span>AUG 30</span>`;
+                } else {
+                    labelsEl.innerHTML = `<span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:59</span>`;
+                }
+            }
+        }
+
+        // CHATBOT LOGIC
+        function toggleChat() {
+            const chat = document.getElementById('ai-chat-window');
+            if (chat.classList.contains('opacity-0')) {
+                chat.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+                chat.classList.add('opacity-100', 'scale-100');
+            } else {
+                chat.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+                chat.classList.remove('opacity-100', 'scale-100');
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const chatBody = document.getElementById('chat-body');
+            const sendBtn = document.getElementById('chat-send-btn');
+            
+            // Add user message
+            const userMsg = document.createElement('div');
+            userMsg.className = "bg-primary/5 p-4 rounded-2xl rounded-tr-none border border-primary/20 max-w-[85%] ml-auto text-primary text-right";
+            userMsg.textContent = message;
+            chatBody.appendChild(userMsg);
+            
+            input.value = '';
+            chatBody.scrollTop = chatBody.scrollHeight;
+            
+            // Loading state
+            sendBtn.innerHTML = '<span class="animate-spin material-symbols-outlined text-[18px]">progress_activity</span>';
+            sendBtn.disabled = true;
+
+            try {
+                const zoneTitle = zones[currentZone]?.title || "Unknown";
+                const riskProb = lastMlData ? Math.max(...lastMlData.disruption_probability) : 0;
+                
+                const response = await fetch(`/api/chat?message=${encodeURIComponent(message)}&current_zone=${encodeURIComponent(zoneTitle)}&risk_prob=${riskProb}`);
+                const data = await response.json();
+                
+                // Add AI message
+                const aiMsg = document.createElement('div');
+                aiMsg.className = "bg-surface-container p-4 rounded-2xl rounded-tl-none border border-surface-variant max-w-[85%] shadow-sm";
+                aiMsg.textContent = data.reply;
+                chatBody.appendChild(aiMsg);
+            } catch (err) {
+                console.error("Chat Error:", err);
+            } finally {
+                sendBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">send</span>';
+                sendBtn.disabled = false;
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+        }
+
+        // Toggle Buttons
+        document.getElementById('btn-hourly').addEventListener('click', () => {
+            currentView = 'hourly';
+            document.getElementById('btn-hourly').className = "bg-primary text-white px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest shadow-md";
+            document.getElementById('btn-daily').className = "px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all text-on-surface-variant hover:text-primary";
+            renderDashboard();
+        });
+
+        document.getElementById('btn-daily').addEventListener('click', () => {
+            currentView = 'daily';
+            document.getElementById('btn-daily').className = "bg-primary text-white px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest shadow-md";
+            document.getElementById('btn-hourly').className = "px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all text-on-surface-variant hover:text-primary";
+            renderDashboard();
+        });
+
+        // Scenario Handlers
+        function setScenario(id) {
+            ['scen-nominal', 'scen-storm', 'scen-flood'].forEach(s => {
+                const el = document.getElementById(s);
+                el.className = "text-on-surface-variant px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hover:bg-surface-variant/50 transition-all";
+            });
+            document.getElementById(`scen-${id}`).className = "bg-primary text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm";
+            currentScenario = id;
+            updateDashboard();
+        }
+
+        document.getElementById('scen-nominal').addEventListener('click', () => setScenario('nominal'));
+        document.getElementById('scen-storm').addEventListener('click', () => setScenario('storm'));
+        document.getElementById('scen-flood').addEventListener('click', () => setScenario('flood'));
+
+        // HEATMAP & ZONE LOGIC
+        const container = document.getElementById('heatmap-container');
+        const tooltip = document.getElementById('heatmap-tooltip');
+        const titleEl = document.getElementById('tooltip-title');
+        const riskEl = document.getElementById('tooltip-risk');
+        const impactEl = document.getElementById('tooltip-impact');
+        const hotspots = document.querySelectorAll('.hotspot');
+
+        container.addEventListener('mousemove', (e) => {
+            if (tooltip.style.opacity === "1") {
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const posX = x < 300 ? x + 15 : x - 250;
+                const posY = y < 200 ? y + 15 : y - 120;
+                tooltip.style.left = `${posX}px`;
+                tooltip.style.top = `${posY}px`;
+            }
+        });
+
+        hotspots.forEach(hotspot => {
+            hotspot.addEventListener('mouseenter', () => {
+                const idx = parseInt(hotspot.getAttribute('data-idx'));
+                const zone = zones[idx];
+                
+                // Update active zone and fetch new data
+                currentZone = idx;
+                updateDashboard();
+
+                titleEl.textContent = zone.title;
+                titleEl.className = `text-[10px] font-bold uppercase tracking-widest ${zone.color}`;
+                riskEl.textContent = zone.risk;
+                impactEl.textContent = zone.impact;
+                tooltip.style.opacity = "1";
+                
+                document.getElementById(`glow-${idx}`).style.transform = 'scale(1.2)';
+                document.getElementById(`glow-${idx}`).style.opacity = '1';
+                document.getElementById(`glow-${idx}`).style.zIndex = '10';
+            });
+
+            hotspot.addEventListener('mouseleave', () => {
+                const idx = hotspot.getAttribute('data-idx');
+                tooltip.style.opacity = "0";
+                document.getElementById(`glow-${idx}`).style.transform = 'scale(1)';
+                document.getElementById(`glow-${idx}`).style.opacity = '0.8';
+                document.getElementById(`glow-${idx}`).style.zIndex = '0';
+            });
+        });
+
+        // Initial Load
+        updateDashboard();
+        setInterval(updateDashboard, 30000);
+
+    </script>
+</body>
+</html>

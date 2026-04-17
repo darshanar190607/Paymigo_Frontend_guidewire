@@ -1,0 +1,290 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Worker {
+  id              String   @id @default(uuid())
+  phone           String   @unique
+  name            String?
+  platformId      String?
+  email           String?  @unique
+  passwordHash    String?
+  firebaseUid     String?  @unique
+
+  age             Int?
+  jobType         String?
+  experienceYears Int?
+
+  pincode         String
+  zoneId          String
+
+  riskTier        Int
+  loyaltyWeeks    Int      @default(0)
+  trustedStatus   Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  zone            Zone     @relation(fields: [zoneId], references: [id])
+  policies        Policy[]
+  claims          Claim[]
+  notifications   Notification[]
+
+  premiumQuotes   PremiumQuote[]
+  payoutTriggers  PayoutTrigger[]
+  userLocation    UserLocation?
+}
+
+model Zone {
+  id              String   @id @default(uuid())
+  name            String
+  city            String
+  pincode         String   @unique
+
+  riskTier        Int
+  riskMultiplier  Float
+
+  workers         Worker[]
+  triggers        TriggerEvent[]
+  weatherEvents   WeatherEvent[]
+  forecastLogs    ForecastLog[]
+}
+
+model Policy {
+  id              String   @id @default(uuid())
+  workerId        String
+
+  tier            String
+  weeklyPremium   Float
+  isActive        Boolean  @default(true)
+
+  loyaltyPercent  Float
+  startDate       DateTime
+  endDate         DateTime?
+
+  createdAt       DateTime @default(now())
+
+  worker          Worker   @relation(fields: [workerId], references: [id])
+  claims          Claim[]
+  payouts         Payout[]
+}
+
+model TriggerEvent {
+  id              String   @id @default(uuid())
+  zoneId          String
+
+  triggerType     String
+  actualValue     Float
+  threshold       Float
+
+  confidence      Float
+  isActive        Boolean
+
+  fallbackUsed    Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+
+  zone            Zone     @relation(fields: [zoneId], references: [id])
+  claims          Claim[]
+}
+
+model Claim {
+  id                String   @id @default(uuid())
+  workerId          String
+  policyId          String
+  triggerEventId    String
+
+  status            String
+  payoutAmount      Float
+
+  fraudScore        Float?
+  coherenceScore    Float?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  worker            Worker   @relation(fields: [workerId], references: [id])
+  policy            Policy   @relation(fields: [policyId], references: [id])
+  triggerEvent      TriggerEvent @relation(fields: [triggerEventId], references: [id])
+
+  fraudDecision     FraudDecision?
+  payout            Payout?
+  photoValidation   PhotoValidation?
+}
+
+model FraudDecision {
+  id              String   @id @default(uuid())
+  claimId         String   @unique
+
+  fraudScore      Float
+  riskLevel       String
+  coherenceScore  Float
+  decision        String
+  reason          String?
+
+  createdAt       DateTime @default(now())
+
+  claim           Claim    @relation(fields: [claimId], references: [id])
+}
+
+model PhotoValidation {
+  id              String   @id @default(uuid())
+  claimId         String   @unique
+
+  imageUrl        String
+  isValid         Boolean
+  confidence      Float
+
+  createdAt       DateTime @default(now())
+
+  claim           Claim    @relation(fields: [claimId], references: [id])
+}
+
+model Payout {
+  id              String   @id @default(uuid())
+  claimId         String   @unique
+  policyId        String
+
+  amount          Float
+  status          String
+
+  provider        String
+  transactionId   String?
+
+  createdAt       DateTime @default(now())
+
+  claim           Claim    @relation(fields: [claimId], references: [id])
+  policy          Policy   @relation(fields: [policyId], references: [id])
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  workerId    String
+
+  type        String
+  message     String
+
+  isRead      Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+
+  worker      Worker   @relation(fields: [workerId], references: [id])
+}
+
+model ModelInferenceLog {
+  id              String   @id @default(uuid())
+
+  modelName       String
+  inputPayload    Json
+  outputPayload   Json
+
+  confidence      Float?
+  latencyMs       Int?
+
+  createdAt       DateTime @default(now())
+}
+
+model PremiumQuote {
+  id              String   @id @default(uuid())
+  workerId        String
+
+  recommended     Float
+  minRange        Float
+  maxRange        Float
+
+  confidence      Float
+
+  createdAt       DateTime @default(now())
+
+  worker          Worker   @relation(fields: [workerId], references: [id])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  entityType  String
+  entityId    String
+
+  action      String
+  metadata    Json?
+
+  createdAt   DateTime @default(now())
+}
+
+model ExternalEvent {
+  id          String   @id @default(uuid())
+  source      String
+
+  rawData     Json
+  processed   Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+}
+
+model WeatherEvent {
+  id               String   @id @default(uuid())
+  zoneId           String
+  timestamp        DateTime @default(now())
+  weatherType      String
+  intensity        Float
+  confidenceScore  Float
+
+  zone             Zone     @relation(fields: [zoneId], references: [id])
+  payoutTriggers   PayoutTrigger[]
+}
+
+model PayoutTrigger {
+  id               String   @id @default(uuid())
+  userId           String
+  weatherEventId   String
+  amount           Float
+  decision         String
+  confidence       Float
+  status           String
+
+  user             Worker       @relation(fields: [userId], references: [id])
+  weatherEvent     WeatherEvent @relation(fields: [weatherEventId], references: [id])
+}
+
+model UserLocation {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  gpsCoordinates   String
+  microClimateData Json?
+  lastUpdated      DateTime @updatedAt
+
+  user             Worker   @relation(fields: [userId], references: [id])
+}
+
+model ForecastLog {
+  id                String   @id @default(uuid())
+  zoneId            String
+  date              DateTime
+  
+  riskScore         Float
+  predictedClaims   Int
+  premiumAdjustment Float
+  
+  modelVersion      String
+  confidence        Float
+  inputData         Json
+  
+  createdAt         DateTime @default(now())
+  
+  zone              Zone     @relation(fields: [zoneId], references: [id])
+}
+
+model NLPEvent {
+  id          String   @id @default(uuid())
+  text        String
+  label       String   // curfew / strike / normal
+  confidence  Float
+  source      String
+  zone        String
+  status      String   @default("active") // active / ignored / triggered
+  createdAt   DateTime @default(now())
+}
