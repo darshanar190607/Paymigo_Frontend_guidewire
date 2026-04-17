@@ -1,0 +1,16 @@
+GeoTruth — Inertial Layer XGBoost Training Report
+==================================================
+CV Mean AUC (5-fold):     0.9998
+Test Accuracy:            0.9987
+Test ROC-AUC:             1.0000
+False Positive Rate:      0.0000
+  (honest workers wrongly flagged)
+False Negative Rate:      0.0033
+  (fraud wrongly approved)
+
+Confusion Matrix:
+  TN=900  FP=0
+  FN=2  TP=598
+
+Feature columns: ['variance_1h_to_30m_ago', 'variance_last_30m', 'variance_delta', 'motion_ratio', 'sudden_stillness', 'prolonged_static', 'reverse_delta']
+Model path: D:\Hackathon Projects\Geotruth\geotruth\models\xgb_inertial_v1.json
